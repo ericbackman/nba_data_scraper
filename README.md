@@ -15,3 +15,5 @@ Once repo is cloned, navigate to directory in terminal and activate virtualenv u
 This code is written to interact with Bigquery. You will need to set up and configure your own bigquery dataset for the
 code to work as anticipated. Place credentials as follows:
 
+TODO : Steps explaining setting up keys and service account, will not be included in script. 
+
