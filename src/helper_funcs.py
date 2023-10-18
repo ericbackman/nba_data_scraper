@@ -1,3 +1,7 @@
+import bs4
+import pandas as pd
+import numpy as np
+
 def get_webpage_html(temp_driver, url):
     temp_driver.get(url)
     html=temp_driver.page_source    
@@ -11,23 +15,38 @@ def getScheduleResultsDF(temp_driver, team, year):
     df = pd.read_html(str(table))[0]
     return df
 
-def cleanScheduleResultsDF(df):
-    df = df[df['G'] != 'G'] 
-    column_rename = {"G": "GameNum", "Date":"datetime", "Unnamed: 5" : "home", "Opponent":"opponent", "Result":"result", "Tm":"ptsf","Opp":"ptsa", "Unnamed: 7" : "Result"}
+
+def extract_date(dt):
+    return dt.date().strftime("%Y%m%d")
+
+
+def cleanScheduleResultsDF(df, input_team):
+    df = df[df['G'] != 'G']  # remove formatting columns/rows
+    column_rename = {"G": "gameNum", "Date": "datetime", "Unnamed: 5": "home", "Opponent": "opponent",
+                     "Result": "result", "Tm": "ptsf", "Opp": "ptsa", "Unnamed: 7": "result", "W": "wins",
+                     "L": "losses", "Streak": "streak"}
     df.rename(columns=column_rename, inplace=True)
+    df.loc[:, 'datetime'] = pd.to_datetime(df['datetime'] + " " + df['Start (ET)'], errors='coerce')
 
-    df['datetime'] = pd.to_datetime(df['datetime'] +" " +df['Start (ET)'])
-    home_away_map = {np.nan : "home", "@" : "away"}
-    df['home'] = df['home'].replace(temp)
+    home_map = {np.nan: "home", "@": "away"}
+    df.loc[:, 'home'] = df['home'].replace(home_map)
 
-    labels = ['Start (ET)','Unnamed: 3', 'Unnamed: 4','Unnamed: 8', 'Notes']
-    df.drop(columns=labels,inplace=True) #Remove useless columns
-    
-    df['GameNum'] = df['GameNum'].astype(int)
-    df['home'] = df['home'].astype(int)
-    df['ptsf'] = df['ptsf'].astype(int)
-    df['ptsa'] = df['ptsa'].astype(int)
-    df['W'] = df['W'].astype(int)
-    df['L'] = df['L'].astype(int)
-    df.set_index("GameNum", inplace=True)
+    labels = ['Start (ET)', 'Unnamed: 3', 'Unnamed: 4', 'Unnamed: 8', 'Notes']
+    df.drop(columns=labels, inplace=True)  # Remove useless columns
+
+    # Convert columns into desired data type
+    df.loc[:, 'gameNum'] = df['gameNum'].astype(int)
+    df.loc[:, 'home'] = df['home'].astype(int)
+    df.loc[:, 'ptsf'] = df['ptsf'].astype(int)
+    df.loc[:, 'ptsa'] = df['ptsa'].astype(int)
+    df.loc[:, 'wins'] = df['wins'].astype(int)
+    df.loc[:, 'losses'] = df['losses'].astype(int)
+    df.loc[:, 'team'] = input_team
+    df.set_index("gameNum", inplace=True)
+
+    # Convert team names to team codes
+    df.loc[:, "opponent"] = df['opponent'].replace(nba_teams)
+    df.loc[:, "team"] = df['team'].replace(nba_teams)
+    df['gameID'] = df['datetime'].apply(extract_date) + df["team"] + df["opponent"]
+
     return df

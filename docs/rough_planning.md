@@ -10,7 +10,7 @@ For a given NBA game, feed it combination of recent team data, recent player dat
 
 1. Python Selenium scripts to open and screen scrape historical data from basketball reference (https://www.basketball-reference.com/). Lots of experimentation will be required to determine which data works best, will need to revisit these scripts often so good coding practices to make work repeatable and easy is a priority. 
 2. Python code to parse selenium HTML data and extract relevant data into an easy to use format (thinking Pandas dataframe)
-3. Take cleaned data and write it to external storage. Most familiar with Google BigQuery or BigTable, but may use AWS to learn new framework. For now assume GCP will be platform of choice
+3. Take cleaned raw data and write it to external storage. Most familiar with Google BigQuery or BigTable, but may use AWS to learn new framework. For now assume GCP will be platform of choice
 4. Scripts to extract stored data, transform data if necessary for ML models (to be researched, investigate what is current cutting edge in sports/statisctical analysis)
 5. Train ML models, google cloud run, google cloud functions, will be chosen later
 6. Evalute models, play with data, see if we can get any improvements.
@@ -27,4 +27,25 @@ Would like to include betting pregame lines and other statistics to improve mode
 
 ### Current Work
 
-Step 1. use jupyter labs to experiment and pull per game data for a given team. Would like to end up with a series of data frames I can store for a team (toronto raptors for example). End result should be a game number (ID), all relevant stats for the team in game. Off the top of my head, PTS for, PTS against, 3pts made, 3pts attempted, FG made, FG attempted, 
+Step 1. use jupyter labs to experiment and pull per game data for a given team. Would like to end up with a series of data frames I can store for a team (toronto raptors for example). End result should be a game number (ID), all relevant stats for the team in game. Off the top of my head, PTS for, PTS against, 3pts made, 3pts attempted, FG made, FG attempted.
+
+### Oct 4th Thinking
+
+First type of predictions i want to tackle is game outcome, for a given game, feed in relevant statistics to create guess.
+Stats required (first draft):
+- team stats for previous season
+- team stats for current season
+- rolling avg of last 3, 5, 7, 10 games
+- player stats for each team (roster is 15 deep, rarely go deeper than 12?)
+
+Based on this draft, will need a raw stats storage that includes:
+- Team standings for all seasons
+- Team game logs
+- Player aggregate stats
+- Player game logs
+
+Need to convert this into a series of data sets and tables. Gives rough framework for what data i need to scrape.
+Functions to needed for selenium:
+- Team aggregate stats from a season (better to get from standings from a given season?)
+- Given team and season, pull all boxscores (will give team data and player data)
+- Given player name, pull aggregate stats for all seasons
