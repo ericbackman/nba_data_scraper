@@ -1,7 +1,7 @@
-import util_dicts
+from src.util import util_dicts
 import pandas as pd
 from selenium.webdriver.chrome.options import Options
-from helper_funcs import team_year_to_df
+from src.util.helper_funcs import team_year_to_df
 
 # Options for selenium
 options = Options()
