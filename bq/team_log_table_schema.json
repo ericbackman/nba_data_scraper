@@ -1,0 +1,79 @@
+[
+  {
+    "name": "gameID",
+    "mode": "REQUIRED",
+    "type": "STRING",
+    "description": "unique Game ID",
+    "fields": []
+  },
+  {
+    "name": "datetime",
+    "mode": "REQUIRED",
+    "type": "TIMESTAMP",
+    "description": "Date and time of given game",
+    "fields": []
+  },
+  {
+    "name": "team",
+    "mode": "REQUIRED",
+    "type": "STRING",
+    "description": "Team code for given game",
+    "fields": []
+  },
+  {
+    "name": "opponent",
+    "mode": "REQUIRED",
+    "type": "STRING",
+    "description": "Team code for opposing team",
+    "fields": []
+  },
+  {
+    "name": "result",
+    "mode": "REQUIRED",
+    "type": "STRING",
+    "description": "W or L indicating outcome for given team",
+    "fields": []
+  },
+  {
+    "name": "ptsf",
+    "mode": "REQUIRED",
+    "type": "INTEGER",
+    "description": "Points for given team",
+    "fields": []
+  },
+  {
+    "name": "ptsa",
+    "mode": "REQUIRED",
+    "type": "INTEGER",
+    "description": "Points for opposing team",
+    "fields": []
+  },
+  {
+    "name": "wins",
+    "mode": "REQUIRED",
+    "type": "INTEGER",
+    "description": "Wins in given season",
+    "fields": []
+  },
+  {
+    "name": "losses",
+    "mode": "REQUIRED",
+    "type": "INTEGER",
+    "description": "Losses in given season",
+    "fields": []
+  },
+  {
+    "name": "home",
+    "mode": "REQUIRED",
+    "type": "BOOLEAN",
+    "description": "Home or away for given team",
+    "fields": []
+  },
+  {
+    "name": "streak",
+    "mode": "REQUIRED",
+    "type": "STRING",
+    "description": "Win and loss streak tracking",
+    "fields": []
+  }
+]
