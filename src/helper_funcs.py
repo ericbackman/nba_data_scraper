@@ -1,11 +1,12 @@
 import bs4
 import pandas as pd
 import numpy as np
-from cleaning_dictionaries import nba_teams, home_map
+from util_dicts import nba_teams_post_2000, home_map
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 
 import warnings
+
 # Ignore subset copy warnings from pandas
 warnings.filterwarnings("ignore", category=pd.errors.PerformanceWarning)
 # Ignore dateutil warnings when constructing pandas datetime stamps
@@ -14,7 +15,7 @@ with warnings.catch_warnings():
 
 # Options for selenium
 options = Options()
-options.page_load_strategy = 'eager' # Faster load so it does not wait for video ads to render
+options.page_load_strategy = 'eager'  # Faster load so it does not wait for video ads to render
 options.add_argument("--headless")  # Run Chrome in headless mode
 
 
@@ -24,6 +25,8 @@ def team_year_to_df(team, year):
     driver.close()
     df_clean = cleanScheduleResultsDF(df_raw, team)
     return df_clean
+
+
 def get_webpage_html(temp_driver, url):
     temp_driver.get(url)
     html = temp_driver.page_source
@@ -57,22 +60,27 @@ def cleanScheduleResultsDF(df, input_team):
     home_away_map = {np.nan: "home", "@": "away"}
     df.loc[:, 'home'] = df['home'].replace(home_map)
 
-    labels = ['Start (ET)', 'Unnamed: 3', 'Unnamed: 4', 'Unnamed: 8', 'Notes']
+    labels = ['Start (ET)', 'Unnamed: 3', 'Unnamed: 4', 'Unnamed: 8', 'Notes', 'gameNum']
     df.drop(columns=labels, inplace=True)  # Remove useless columns
 
     # Convert columns into desired data type
-    df.loc[:, 'gameNum'] = df['gameNum'].astype(int)
-    df.loc[:, 'home'] = df['home'].astype(int)
+    df = column_type_conversion(df)
+    df.loc[:, 'team'] = input_team
+
+    # Convert team names to team codes
+    df.loc[:, "opponent"] = df['opponent'].replace(nba_teams_post_2000)
+    df.loc[:, "team"] = df['team'].replace(nba_teams_post_2000)
+    df['gameID'] = df['datetime'].apply(extract_date) + df["team"] + df["opponent"]
+
+    return df
+
+
+def column_type_conversion(df):
+    df.loc[:, 'home'] = df['home'].astype(bool)
     df.loc[:, 'ptsf'] = df['ptsf'].astype(int)
     df.loc[:, 'ptsa'] = df['ptsa'].astype(int)
     df.loc[:, 'wins'] = df['wins'].astype(int)
     df.loc[:, 'losses'] = df['losses'].astype(int)
-    df.loc[:, 'team'] = input_team
-    df.set_index("gameNum", inplace=True)
-
-    # Convert team names to team codes
-    df.loc[:, "opponent"] = df['opponent'].replace(nba_teams)
-    df.loc[:, "team"] = df['team'].replace(nba_teams)
-    df['gameID'] = df['datetime'].apply(extract_date) + df["team"] + df["opponent"]
-
+    if type(df.datetime[1]) == str:
+        df.loc[:, 'datetime'] = pd.to_datetime(df['datetime'], format='mixed')
     return df
