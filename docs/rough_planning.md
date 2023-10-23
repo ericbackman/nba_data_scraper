@@ -49,3 +49,26 @@ Functions to needed for selenium:
 - Team aggregate stats from a season (better to get from standings from a given season?)
 - Given team and season, pull all boxscores (will give team data and player data)
 - Given player name, pull aggregate stats for all seasons
+
+### Oct 23rd thinking
+
+Team logs completed, now need to tackle the more difficult player stats.
+
+To predict a game we need to use player information, this becomes much more difficult because for each game the player averages need to be compiled TO DATE. 
+Not useful to input player stats from present day, means we will need some way to either find or calculate player averages prior to each game of the season.
+Could be accomplished by compiling player raw game logs, then writing BQ script to append the average stats for each game (thinking this for now)
+
+In terms of todays work, means we will need to start by getting:
+- List of all players who have played since 2000
+- Using that list of players to pull all game logs for each player
+
+Projected Rough schema:
+- Player name, first name, last name (complicated with name changes e.g. ron artest)
+- gameID, would like to match gameID used in team table
+- all counting stats
+
+First lets work on pulling this raw game log into a single table, will likely need to also spend some time making some
+supporting linking tables (e.g. team name -> team code)
+
+
+
