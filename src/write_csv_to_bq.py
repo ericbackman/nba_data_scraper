@@ -1,7 +1,7 @@
 from google.oauth2 import service_account
 from pandas_gbq import to_gbq
 import pandas as pd
-from src.util import helper_funcs as hf
+from src.util import game_logs_helper as hf
 
 # Setting up for Google cloud bigquery insert, private project, do not attempt to write
 project_id = 'nba-data-playground-401815'

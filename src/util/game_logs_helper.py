@@ -84,3 +84,4 @@ def column_type_conversion(df):
     if type(df.datetime[1]) == str:
         df.loc[:, 'datetime'] = pd.to_datetime(df['datetime'], format='mixed')
     return df
+

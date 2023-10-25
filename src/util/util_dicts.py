@@ -73,3 +73,8 @@ nba_teams_post_2000 = {
 }
 
 home_map = {np.nan: 1, "@": 0}
+
+player_games_log_col_order = ['gameID', 'tm_game_num', 'p_game_num', 'date', 'age_yrs', 'age_days', 'Tm', 'Opp', 'home',
+                              'result', 'score_diff', 'GS', 'MP', 'FG', 'FGA', 'FG%', '3P', '3PA', '3P%', 'FT', 'FTA',
+                              'FT%', 'ORB', 'DRB', 'TRB', 'AST', 'STL', 'BLK', 'TOV', 'PF', 'PTS', 'GmSc',
+                              'PM']  # Specific column order because cleaner
