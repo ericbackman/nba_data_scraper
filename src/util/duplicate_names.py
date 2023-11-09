@@ -42,7 +42,7 @@ if __name__ == "__main__":
     duplicate_df.loc[len(duplicate_df.index)] = ["Jim", "Paxson", "1980", "1990", "p/paxsoji02"]
     duplicate_df.loc[len(duplicate_df.index)] = ["Walker", "Russell", "2012", "2012", "r/russewa02"]
     duplicate_df.loc[len(duplicate_df.index)] = ["Charles", "Smith", "1990", "1996", "s/smithch02"]
-    duplicate_df.loc[len(duplicate_df.index)] = ["Charles", "Smith", "1998", "2996", "s/smithch04"]
+    duplicate_df.loc[len(duplicate_df.index)] = ["Charles", "Smith", "1998", "2006", "s/smithch04"]
     duplicate_df.loc[len(duplicate_df.index)] = ["Michael", "Smith", "1995", "2001", "s/smithmi02"]
     duplicate_df.loc[len(duplicate_df.index)] = ["Don", "Smith", "1975", "1975", "s/smithdo02"]
     duplicate_df.loc[len(duplicate_df.index)] = ["Greg", "Smith", "2012", "2016", "s/smithgr02"]
@@ -60,5 +60,7 @@ if __name__ == "__main__":
     duplicate_df.loc[len(duplicate_df.index)] = ["Bobby", "Wilson", "1968", "1968", "w/wilsobo02"]
     duplicate_df.loc[len(duplicate_df.index)] = ["Bobby", "Wilson", "1975", "1978", "w/wilsobo03"]
     duplicate_df.loc[len(duplicate_df.index)] = ["Chris", "Wright", "2013", "2013", "w/wrighch02"]
+    duplicate_df.loc[len(duplicate_df.index)] = ["Joe", "Barry Carroll", "1981", "1991", "c/carrojo01"]
+    duplicate_df.loc[len(duplicate_df.index)] = ["Kenyon", "Martin Jr.", "2021", "2023", "m/martike04"]
 
-    duplicate_df.to_csv("~/github/nba_data_scraper/src/raw_data/duplicate_names.csv")
+    duplicate_df.to_csv("~/github/nba_data_scraper/src/raw_data/duplicate_names.csv", index=False)
