@@ -10,6 +10,10 @@ rate_limited = "We apologize, but you have triggered rate limiting by our cloud 
 not_found = "We apologize, but this page could not be found."
 
 
+def extract_date(dt):  # To create gameID column
+    return dt.date().strftime("%Y%m%d")
+
+
 def get_player_season_games_log(season, code):
     url = f"https://www.basketball-reference.com/players/{code}/gamelog/{season}"
     html = get_webpage_html(url)
@@ -31,6 +35,19 @@ def get_player_season_games_log(season, code):
     return df
 
 
+def get_player_adv_season_games_log(season, code):
+    url = f"https://www.basketball-reference.com/players/{code}/gamelog-advanced/{season}"
+    html = get_webpage_html(url)
+    soup = bs4.BeautifulSoup(html, 'html.parser')
+    try:
+        table = soup.find(lambda tag: tag.name == 'table' and tag.has_attr('id') and tag['id'] == 'pgl_advanced')
+        df = pd.read_html(str(table))[0]
+    except ValueError:
+        print(f"Unable to find {season} for {code}")
+        df = None
+    return df
+
+
 # Specific for the player game log table
 # TODO, investigate try/catch for this in case missing values?
 # Specific for the player game log table
@@ -40,69 +57,31 @@ def column_type_conversion(df):
     df.loc[:, 'p_game_num'] = df['p_game_num'].astype(float)
     df.loc[:, 'home'] = df['home'].astype(bool)
     df.loc[:, 'GS'] = df['GS'].astype(bool)
-    df.loc[:, 'FG'] = df['FG'].astype(int)
-    df.loc[:, 'FGA'] = df['FGA'].astype(int)
+    df.loc[:, 'FG'] = df['FG'].astype(float)
+    df.loc[:, 'FGA'] = df['FGA'].astype(float)
     df.loc[:, 'FG%'] = df['FG%'].astype(float)
-    df.loc[:, '3P'] = df['3P'].astype(int)
+    df.loc[:, '3P'] = df['3P'].astype(float)
     df.loc[:, '3PA'] = df['3PA'].astype(float)
     df.loc[:, '3P%'] = df['3P%'].astype(float)
-    df.loc[:, 'FT'] = df['FT'].astype(int)
-    df.loc[:, 'FTA'] = df['FTA'].astype(int)
+    df.loc[:, 'FT'] = df['FT'].astype(float)
+    df.loc[:, 'FTA'] = df['FTA'].astype(float)
     df.loc[:, 'FT%'] = df['FT%'].astype(float)
-    df.loc[:, 'ORB'] = df['ORB'].astype(int)
-    df.loc[:, 'DRB'] = df['DRB'].astype(int)
-    df.loc[:, 'TRB'] = df['TRB'].astype(int)
-    df.loc[:, 'AST'] = df['AST'].astype(int)
-    df.loc[:, 'STL'] = df['STL'].astype(int)
-    df.loc[:, 'BLK'] = df['BLK'].astype(int)
-    df.loc[:, 'TOV'] = df['TOV'].astype(int)
-    df.loc[:, 'PF'] = df['PF'].astype(int)
-    df.loc[:, 'PTS'] = df['PTS'].astype(int)
+    df.loc[:, 'ORB'] = df['ORB'].astype(float)
+    df.loc[:, 'DRB'] = df['DRB'].astype(float)
+    df.loc[:, 'TRB'] = df['TRB'].astype(float)
+    df.loc[:, 'AST'] = df['AST'].astype(float)
+    df.loc[:, 'STL'] = df['STL'].astype(float)
+    df.loc[:, 'BLK'] = df['BLK'].astype(float)
+    df.loc[:, 'TOV'] = df['TOV'].astype(float)
+    df.loc[:, 'PF'] = df['PF'].astype(float)
+    df.loc[:, 'PTS'] = df['PTS'].astype(float)
     df.loc[:, 'GmSc'] = df['GmSc'].astype(float)
     df.loc[:, 'PM'] = df['PM'].astype(float)  # E.G Lebron missing +/- leads to error when parsing
-    df.loc[:, 'age_yrs'] = df['age_yrs'].astype(int)
-    df.loc[:, 'age_days'] = df['age_days'].astype(int)
-    df.loc[:, 'score_diff'] = df['score_diff'].astype(int)
+    df.loc[:, 'age_yrs'] = df['age_yrs'].astype(float)
+    df.loc[:, 'age_days'] = df['age_days'].astype(float)
+    df.loc[:, 'score_diff'] = df['score_diff'].astype(float)
     if type(df.iloc[0]['date']) == str:
         df.loc[:, 'date'] = pd.to_datetime(df['date'], format='mixed')
-    return df
-
-
-def extract_date(dt):  # To create gameID column
-    return dt.date().strftime("%Y%m%d")
-
-
-def clean_player_games_log(df, season):
-    df = df[df['G'] != 'G'].copy()  # remove formatting rows
-    column_rename = {'Rk': 'tm_game_num', 'G': 'p_game_num', 'Date': 'date', 'Age': 'age', 'Unnamed: 5': 'home',
-                     'Unnamed: 7': 'result', '+/-': 'PM'}
-    df.rename(columns=column_rename, inplace=True)  # Rename necessary columns
-
-    df = df[df['GS'] != 'Inactive'].copy()  # Remove rows where the player was inactive for the game
-    df = df[df['GS'] != 'Did Not Dress'].copy()  # Remove rows where player was not active (for player stats research would want to keep, but for ML not needed
-    df = df[df['GS'] != 'Did Not Play'].copy()  # Remove rows where player was not active, mutual decision? lol
-    df = df[df['GS'] != 'Not With Team'].copy()  # Remove rows where player was not with team?
-    df = df[df['GS'] != 'Player Suspended'].copy()  # Remove rows where player was suspended and did not play
-
-    if df.shape[0] == 0:
-        print("No active games for given season")
-        return None
-
-    df.loc[:, 'home'] = df['home'].replace(home_map)  # Map home to a bool column, true = home
-
-    # Split and clean up compound columns
-    df[['age_yrs', 'age_days']] = df['age'].str.split('-', expand=True)
-    df[['result', 'score_diff']] = df['result'].str.split('(', expand=True)
-    df['score_diff'] = df['score_diff'].str.rstrip(')')
-    df = df.drop(columns=['age'])
-
-    if season < 1997:
-        df['PM'] = np.nan
-
-    df = column_type_conversion(df)  # Convert all columns to required type
-    df['gameID'] = df['date'].apply(extract_date) + df["Tm"] + df["Opp"]  # Create gameID column
-
-    df = df[player_games_log_col_order]  # Order because cleaner
     return df
 
 
@@ -137,16 +116,72 @@ def adv_column_type_conversion(df):
     return df
 
 
-def get_player_adv_season_games_log(season, code):
-    url = f"https://www.basketball-reference.com/players/{code}/gamelog-advanced/{season}"
-    html = get_webpage_html(url)
-    soup = bs4.BeautifulSoup(html, 'html.parser')
-    try:
-        table = soup.find(lambda tag: tag.name == 'table' and tag.has_attr('id') and tag['id'] == 'pgl_advanced')
-        df = pd.read_html(str(table))[0]
-    except ValueError:
-        print(f"Unable to find {season} for {code}")
-        df = None
+def year_correction(df, season):
+    if season < 1997:
+        df['PM'] = np.nan
+    if season < 1980:
+        df['3P'] = np.nan
+        df['3PA'] = np.nan
+        df['3P%'] = np.nan
+    if season < 1974:
+        df['ORB'] = np.nan
+        df['DRB'] = np.nan
+        df['STL'] = np.nan
+        df['BLK'] = np.nan
+    if season < 1978:
+        df['TOV'] = np.nan
+        df['GmSc'] = np.nan
+    return df
+
+
+def adv_year_correction(df, season):
+    if season < 1985:
+        df['BPM'] = np.nan
+    if season < 1983:
+        df['ORB%'] = np.nan
+        df['DRB%'] = np.nan
+        df['TRB%'] = np.nan
+        df['AST%'] = np.nan
+        df['ORtg'] = np.nan
+        df['DRtg'] = np.nan
+    if season < 1980:
+        df['eFG%'] = np.nan
+    if season < 1978:
+        df['GmSc'] = np.nan
+        df['TOV%'] = np.nan
+        df['USG%'] = np.nan
+    if season < 1974:
+        df['STL%'] = np.nan
+        df['BLK%'] = np.nan
+    return df
+
+
+def clean_player_games_log(df, season):
+    df = df[df['G'] != 'G'].copy()  # remove formatting rows
+    column_rename = {'Rk': 'tm_game_num', 'G': 'p_game_num', 'Date': 'date', 'Age': 'age', 'Unnamed: 5': 'home',
+                     'Unnamed: 7': 'result', '+/-': 'PM'}
+    df.rename(columns=column_rename, inplace=True)  # Rename necessary columns
+
+    df = remove_inactive(df)
+
+    if df.shape[0] == 0:
+        print("No active games for given season")
+        return None
+
+    df.loc[:, 'home'] = df['home'].replace(home_map)  # Map home to a bool column, true = home
+
+    # Split and clean up compound columns
+    df[['age_yrs', 'age_days']] = df['age'].str.split('-', expand=True)
+    df[['result', 'score_diff']] = df['result'].str.split('(', expand=True)
+    df['score_diff'] = df['score_diff'].str.rstrip(')')
+    df = df.drop(columns=['age'])
+
+    df = year_correction(df, season)
+
+    df = column_type_conversion(df)  # Convert all columns to required type
+    df['gameID'] = df['date'].apply(extract_date) + df["Tm"] + df["Opp"]  # Create gameID column
+
+    df = df[player_games_log_col_order]  # Order because cleaner
     return df
 
 
@@ -160,11 +195,7 @@ def clean_player_adv_games_log(df, season):
                      'Unnamed: 7': 'result'}
     df.rename(columns=column_rename, inplace=True)  # Rename necessary columns
 
-    df = df[df['GS'] != 'Inactive'].copy()  # Remove rows where the player was inactive for the game
-    df = df[df['GS'] != 'Did Not Dress'].copy()  # Remove rows where player was not active (for player stats research would want to keep, but for ML not needed
-    df = df[df['GS'] != 'Did Not Play'].copy()  # Remove rows where player was not active, mutual decision? lol
-    df = df[df['GS'] != 'Not With Team'].copy()  # Remove rows where player was not with team?
-    df = df[df['GS'] != 'Player Suspended'].copy()  # Remove rows where player was suspended and did not play
+    df = remove_inactive(df)
 
 
     # NOTE: Will be more of these to drop, e.g. did not dress
@@ -177,8 +208,7 @@ def clean_player_adv_games_log(df, season):
 
     df = df.drop(columns=['age'])
 
-    if season < 1985:
-        df['BPM'] = np.nan
+    df = adv_year_correction(df, season)
 
     df = adv_column_type_conversion(df)
 
@@ -186,6 +216,17 @@ def clean_player_adv_games_log(df, season):
 
     df = df[col_order]
     return df
+
+
+def remove_inactive(df):
+    df = df[df['GS'] != 'Inactive'].copy()  # Remove rows where the player was inactive for the game
+    df = df[df['GS'] != 'Did Not Dress'].copy()  # Remove rows where player was not active (for player stats research would want to keep, but for ML not needed
+    df = df[df['GS'] != 'Did Not Play'].copy()  # Remove rows where player was not active, mutual decision? lol
+    df = df[df['GS'] != 'Not With Team'].copy()  # Remove rows where player was not with team?
+    df = df[df['GS'] != 'Player Suspended'].copy()  # Remove rows where player was suspended and did not play
+    df = df[df['GS'] != 'DNP'].copy()  # Remove rows where player was suspended and did not play
+    return df
+
 
 
 def merge_gamelogs(df, df_adv):

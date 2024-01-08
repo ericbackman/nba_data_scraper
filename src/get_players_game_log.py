@@ -1,6 +1,6 @@
 import pandas as pd
 from util.player_logs_helper import get_and_merge_all_logs
-
+import time
 import logging
 import sys
 import os
@@ -25,25 +25,21 @@ if __name__ == "__main__":
     for idx, row in nba_players.iterrows():
         first = row['first_name']
         last = row['last_name']
-        if first == "Terry" and last == "Cummings":
-            print("skipping terry because he missing info")
-            continue
         start_year = int(row['From'])
         end_year = int(row['To'])
         filename = f"{first}_{last}_game_logs.csv"
         if filename in files:
             print(f"Skipping {first} {last}. CSV exists")
             continue
-        if start_year >= 2000 or end_year >= 2000:
-            df_master = pd.DataFrame()
-            print(f"Collecting {first} {last}, played {start_year} to {end_year}")
-            for season in range(start_year, end_year + 1):
-                df = get_and_merge_all_logs(season, row['bbref'])
-                df_master = pd.concat([df_master, df])
-            if not df_master.empty:
-                df_master['first_name'] = first
-                df_master['last_name'] = last
-                df_master.to_csv(f"{directory_path}/{filename}")
-        else:
-            print(f"Skipping {first} {last} played from {start_year} to {end_year}")
-        print(f"{100*(idx/total_entries)}")
+        df_master = pd.DataFrame()
+        print(f"Collecting {first} {last}, played {start_year} to {end_year}")
+        for season in range(start_year, end_year + 1):
+            df = get_and_merge_all_logs(season, row['bbref'])
+            df_master = pd.concat([df_master, df])
+        if not df_master.empty:
+            df_master['first_name'] = first
+            df_master['last_name'] = last
+            df_master.to_csv(f"{directory_path}/{filename}")
+        if idx%100 == 0:
+            print(f"{100*(idx/total_entries)}")
+            time.sleep(3)
