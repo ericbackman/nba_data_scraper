@@ -78,3 +78,16 @@ player_games_log_col_order = ['gameID', 'tm_game_num', 'p_game_num', 'date', 'ag
                               'result', 'score_diff', 'GS', 'MP', 'FG', 'FGA', 'FG%', '3P', '3PA', '3P%', 'FT', 'FTA',
                               'FT%', 'ORB', 'DRB', 'TRB', 'AST', 'STL', 'BLK', 'TOV', 'PF', 'PTS', 'GmSc',
                               'PM']  # Specific column order because cleaner
+
+
+duplicate_player_names = ['Bobby Wilson', 'Mark Davis', 'Jon Barry', 'Luke Jackson', 'Walker Russell', 'George Johnson',
+                          'Mike Davis', 'Charles Jones', 'Marcus Williams', 'Bob Duffy', 'Sam Williams',
+                          'Patrick Ewing', 'Charles Smith', 'Mike James', 'Michael Smith', 'Bobby Jones',
+                          'Don Smith', 'Chris Johnson', 'Joe Barry Carroll', 'Eddie Johnson', 'Mark Jones',
+                          'Gerald Henderson', 'Larry Johnson', 'Matt Guokas', 'Jim Paxson', 'Kenyon Martin',
+                          'David Vaughn', 'Tony Mitchell', 'George King', 'Jack Turner', 'Dan Anderson',
+                          'Cedric Henderson', 'Mike Dunleavy', 'Reggie Williams', 'Greg Smith', 'Johnny Davis',
+                          'Dee Brown', 'Roger Brown', 'Freddie Lewis', 'Brandon Williams', 'Ken Johnson',
+                          'Bill Bradley', 'Kenyon Martin Jr.', 'Sam Smith', 'Jeff Taylor', 'Tony Jackson',
+                          'Chris Wright', 'Chris Smith']
+
