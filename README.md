@@ -1,8 +1,16 @@
 # nba_data_scraper
-The purpose of this repository is to create a simple web scraper that can compile publicly available NBA statistics. 
+The purpose of this repository is to create a simple web scraper that can compile publicly available NBA statistics into
+csv form so that it can be imported simply into jupyter notebooks or in the cloud on GCP for ML based projects.
 
-This repository is written in Python and can be considered the first step in a personal project to use ML to 
-predict the outcome of NBA games.
+This repository is written in Python and uses Selenium to navigate and pull the desired Basketball Reference pages. 
+Beautiful soup, pandas and numpy are used to parse the html and clean the data before saving as a series of csv files.
+
+## What can this repository pull?
+
+This repository has scripts that will allow you to collect the following information:
+- List of all players that played in the NBA/ABA that have a page on basketball reference
+- NBA box scores for all games after the 1999-2000 NBA season (TODO pull all games)
+- Pull all player game logs for all games. (i.e for each player, will have 1 row for each game played)
 
 ## Getting Started
 
@@ -13,55 +21,49 @@ Once repo is cloned, navigate to directory in terminal and activate virtualenv u
     source venv/bin/activate 
     pip install -r requirements.txt
 
-## What can this repository pull?
+### Installing Selenium
 
-This repository has scripts that will allow you to collect the following information:
-- NBA box scores for all games after the 1999-2000 NBA season
-- NBA/ABA players list
-- Player career game logs (games post 1984)
+To use these python scripts you will need to have selenium installed. Go to [Selenium Web Driver Getting Started](
+https://www.selenium.dev/documentation/webdriver/getting_started/) to download and install the required web driver.
 
-## How to use the scripts
 
-Depending on the information you want to pull, their maybe intermediary steps before you will be able to scrape the 
-data. For each of the aforementioned use cases, here is how you should approach collecting this information.
+## Using the Scripts
 
-### NBA Box Scores
+All scripts are located in the `src` folder. Before running any of them, make sure you create an output folder for the 
+csv's titled `raw_data`
 
-The box scores are the easiest to compile as there are no additional steps needed. You simply need to open and run the 
-file `src/get_nba_games_log.py`. Make sure you have given a valid output path to write the CSV at the end, and the util
-scripts will handle the rest. For each game, you will end up with a row that looks like the following:
-TODO sample row of NBA team game log
 
-### NBA/ABA Players List
+### NBA/ABA Players List `src/get_nba_players_list.py`
 
-Compiling a list of all NBA/ABA players is not difficult, the trouble comes when creating a unique mapping of NBA 
-players to basketball reference (bbref) codes (used in the URLs to pull single season game logs). There are a series of scripts 
-that need to be create a CSV that uniquely maps player names to bbref codes. 
+Run the python script `src/get_nba_players_list.py`. It will take a few minutes to complete. For each player you will 
+have a row containing the following information:
 
-TODO steps required to pull and clean the player codes
+| first_name  | last_name | From | To | Position | Ht  | Wt  | birthdate | college | hall_of_fame | bbref | 
+|-------------|-----------|------|----|----------|-----|-----|-----------|---------|--------------|-------|
 
-TODO sample row of player to codes mapping
 
 ### Player Career Game Logs
 
-This is the largest and most difficult component of this repository. To pull player game logs you must first compile 
-the NBA/ABA players list and run the additional cleaning scripts to create the `nba_player_codes.csv` file that is used
-as input to this scraper. 
+This is a larger and much longer script. It will take approximately 24 hours to complete and requires you to have 
+already run the `src/get_nba_players_list.py` to generate the NBA players list including their player codes. 
 
-`nba_player_codes.csv` contains a dataframe that has:
-- Player name, first and last
-- Player first year in league
-- Player last year in league
-- Height
-- Weight
-- College (if applicable)
-- Hall of fame
+Before running this script, make sure you create an output folder for the csv's titled `raw_data/player_career_game_logs`
 
-To collect player game logs, the real thing we need is 
+Run the python script `src/get_players_game_log.py` and let it go. If it misses some on the first run due to bbref 
+lockouts just run the script an additional time. It will check the output file and only search for missing players.
 
-###
+It will take 24+ hours to complete. For each player you will have a row containing the following information:
+
+| gameID | tm_game_num | p_game_num | date | age_yrs | age_days | Tm  | Opp | home | result | score_diff | GS | MP | FG | FGA | FG% | 3P | 3PA | 3P% | FT | FTA | FT% | ORB | DRB | TRB | AST | STL | BLK | TOV | PF | PTS | GmSc | PM | TS% | eFG% | ORB% | DRB% | TRB% | AST% | STL% | BLK% | TOV% | USG% | ORtg | DRtg | BPM | first_name | last_name |
+|--------|-------------|------------|------|---------|----------|-----|-----|------|--------|------------|----|----|----|-----|-----|----|-----|-----|----|-----|-----|-----|-----|-----|-----|-----|-----|-----|----|-----|------|----|-----|------|------|------|------|------|------|------|------|------|------|------|-----|------------|-----------|
+
+More detailed information about each statistic can be found on [Basketball Reference](https://www.basketball-reference.com/)
 
 
+### NBA Box Scores `src/get_nba_games_log.py`
+
+Run the python script `src/get_nba_games_log.py`. It will take a while to complete. For each game, you will end up with 
+a row of the form:
 
 
 
